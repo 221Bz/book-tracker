@@ -168,7 +168,7 @@ export default function ProfilePage() {
             ) : (
               <div
                 className={`w-full h-full rounded-full ${photoPreview
-                  ? "bg-cover bg-center ring-4 ring-pink-400"
+                  ? "bg-cover bg-center ring-4 ring-neutral-400"
                   : "bg-neutral-700 flex items-center justify-center text-2xl sm:text-3xl font-bold"
                   }`}
                 style={photoPreview ? { backgroundImage: `url(${photoPreview})` } : undefined}
