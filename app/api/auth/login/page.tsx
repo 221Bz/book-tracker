@@ -52,10 +52,12 @@ export default function LoginPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    const token = getCaptchaToken();
-    if (!token) {
-      alert("Silakan centang Recaptcha dulu.");
-      return;
+    if (process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
+      const token = getCaptchaToken();
+      if (!token) {
+        alert("Silakan centang Recaptcha dulu.");
+        return;
+      }
     }
 
     setLoading(true);
@@ -160,7 +162,7 @@ export default function LoginPage() {
               Forgot password?
             </p>
 
-            {isClient && (
+            {isClient && process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY && (
               <div className="w-full flex justify-center mt-3">
                 <div
                   className="g-recaptcha"
