@@ -3,9 +3,9 @@ import './globals.css'
 import { UserProvider } from '@/context/UserContext'
 
 export const metadata = {
-  title: "SIMAS",
+  title: "BookGraph",
   icons: {
-    icon: '/favicon.ico',
+    icon: '/BookGraphBlack.png',        // favicon utama
   },
 }
 

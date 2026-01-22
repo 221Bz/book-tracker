@@ -12,9 +12,10 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const router = useRouter();
@@ -47,10 +48,15 @@ export default function LoginPage() {
   }
 
   // ------------------------------------------------
-  // SUBMIT LOGIN
+  // SUBMIT REGISTER
   // ------------------------------------------------
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
+    if (password !== confirmPassword) {
+      alert("Password tidak sama.");
+      return;
+    }
 
     const token = getCaptchaToken();
     if (!token) {
@@ -61,43 +67,36 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
 
       if (error || !data.user) {
-        alert("Email atau password salah.");
+        alert(error?.message || "Gagal membuat akun");
         return;
       }
 
-      // Insert profile jika belum ada
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('user_id', data.user.id)
-        .maybeSingle();
+      // Buat profile awal
+      await supabase.from('profiles').insert({
+        user_id: data.user.id,
+        created_at: new Date(),
+      });
 
-      if (!profileData) {
-        await supabase.from('profiles').insert({
-          user_id: data.user.id,
-          created_at: new Date(),
-        });
-      }
-
-      router.push('/home');
-    } catch (err: unknown) {
+      alert("Akun berhasil dibuat. Silakan login.");
+      router.push('/api/auth/login');
+    } catch (err) {
       console.error(err);
-      alert("Terjadi kesalahan saat login");
+      alert("Terjadi kesalahan saat register");
     } finally {
       setLoading(false);
     }
   }
 
   // ------------------------------------------------
-  // LOGIN GOOGLE
+  // REGISTER GOOGLE
   // ------------------------------------------------
-  async function loginWithGoogle() {
+  async function registerWithGoogle() {
     const token = getCaptchaToken();
     if (!token) {
       alert("Silakan centang Recaptcha dulu.");
@@ -109,12 +108,11 @@ export default function LoginPage() {
         provider: "google",
         options: {
           redirectTo: `${window.location.origin}/home`,
-          queryParams: { prompt: "select_account" },
         },
       });
-    } catch (err: unknown) {
+    } catch (err) {
       console.error(err);
-      alert("Login Google gagal");
+      alert("Register Google gagal");
     }
   }
 
@@ -122,9 +120,9 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center px-4">
       <Card className="w-full max-w-md p-6">
         <CardHeader className="pb-2">
-          <CardTitle className="text-3xl font-bold">Welcome back</CardTitle>
+          <CardTitle className="text-3xl font-bold">Create account</CardTitle>
           <CardDescription>
-            Welcome back! Please enter your details.
+            Sign up to get started with your account.
           </CardDescription>
         </CardHeader>
 
@@ -153,12 +151,16 @@ export default function LoginPage() {
               />
             </div>
 
-            <p
-              onClick={() => router.push("/forgot-password")}
-              className="mt-3 text-sm text-gray-600 hover:underline cursor-pointer"
-            >
-              Forgot password?
-            </p>
+            <div className="space-y-2">
+              <Label>Confirm Password</Label>
+              <Input
+                type="password"
+                placeholder="Confirm password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+            </div>
 
             {isClient && (
               <div className="w-full flex justify-center mt-3">
@@ -170,13 +172,13 @@ export default function LoginPage() {
             )}
 
             <Button type="submit" className="w-full bg-black hover:bg-gray-900" disabled={loading}>
-              {loading ? 'Loading...' : 'Login'}
+              {loading ? 'Loading...' : 'Sign Up'}
             </Button>
 
             <Button
               type="button"
               variant="outline"
-              onClick={loginWithGoogle}
+              onClick={registerWithGoogle}
               className="w-full flex items-center gap-3"
             >
               <Image
@@ -185,14 +187,14 @@ export default function LoginPage() {
                 width={20}
                 height={20}
               />
-              Sign in with Google
+              Sign up with Google
             </Button>
           </form>
 
           <p className="text-center text-sm text-gray-600 mt-6">
-            Don&apos;t have an account?{" "}
-            <Link href="/api/auth/register" className="font-semibold text-black underline">
-              Sign up for free
+            Already have an account?{" "}
+            <Link href="/api/auth/login" className="font-semibold text-black underline">
+              Login
             </Link>
           </p>
         </CardContent>

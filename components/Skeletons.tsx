@@ -106,8 +106,8 @@ export const BookGridSkeleton = ({ count = 6 }: { count?: number }) => {
         >
           {/* Cover */}
           <div className="w-full h-44 flex items-center justify-center bg-neutral-800 rounded-t-2xl">
-      <Skel w="w-12" h="h-12" /> {/* icon placeholder */}
-    </div>
+            <Skel w="w-12" h="h-12" /> {/* icon placeholder */}
+          </div>
 
           {/* Header */}
           <div className="flex flex-col gap-2 pt-2 pb-2 px-3">
@@ -138,7 +138,7 @@ export const BookGridSkeleton = ({ count = 6 }: { count?: number }) => {
               </div>
             </div>
             <div className="flex justify-between gap-2">
-              <Skel w="w-1/2 h-8" /> {/* Update button */}
+              <Skel w="w-60 h-8" /> {/* Update button */}
               <Skel w="w-20 h-8" /> {/* Delete button */}
             </div>
           </div>

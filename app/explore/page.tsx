@@ -8,10 +8,7 @@ import { BookCardSkeleton } from "@/components/Skeletons"
 
 export default function Explore() {
   const [search, setSearch] = useState("")
-
-  // 👉 query yang dipakai fetch
   const query = search.trim() === "" ? "popular books" : search
-
   const { books = [], loading, error } = useGoogleBookData(query)
 
   return (

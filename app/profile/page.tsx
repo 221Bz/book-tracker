@@ -60,13 +60,13 @@ export default function ProfilePage() {
       if (profile?.avatar_url) {
         const url = profile.avatar_url.startsWith("http")
           ? profile.avatar_url
-          : supabase.storage.from("avatars").getPublicUrl(profile.avatar_url).data.publicUrl
+          : supabase.storage.from("images").getPublicUrl(profile.avatar_url).data.publicUrl
         setPhotoPreview(url)
       }
     }
 
     loadProfile()
-  }, [router])
+  }, [router, supabase.auth, supabase.storage])
 
   /* =====================
      Update favorites ketika userBooks berubah
@@ -78,10 +78,10 @@ export default function ProfilePage() {
         setFavoriteBooks(userBooks.filter(b => b.is_favorite).slice(0, 4))
         setLoading(false)
       }, 0)
-  
+
       return () => clearTimeout(timer)
     }
-  }, [userBooks, libraryLoading])  
+  }, [userBooks, libraryLoading, setFavoriteBooks, setLoading])
 
   /* =====================
      Handlers
@@ -102,12 +102,15 @@ export default function ProfilePage() {
     let avatarPath = user.user_metadata.avatar_url ?? null
 
     if (photo) {
-      const path = `user-${user.id}/${Date.now()}-${photo.name}`
-      const { error } = await supabase.storage
-        .from("avatars")
+      const fileName = photo.name.replace(/\s/g, "_")
+      const path = `user-${user.id}/${Date.now()}-${fileName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from("images")
         .upload(path, photo, { upsert: true })
 
-      if (error) {
+      if (uploadError) {
+        console.error("Upload error:", uploadError)
         alert("Upload avatar gagal")
         return
       }
@@ -115,36 +118,38 @@ export default function ProfilePage() {
       avatarPath = path
     }
 
+    // Update Supabase Auth
     const { error: authError } = await supabase.auth.updateUser({
       email: email !== user.email ? email : undefined,
       password: password || undefined,
-      data: {
-        custom_name: name,
-        avatar_url: avatarPath,
-      },
+      data: { custom_name: name, avatar_url: avatarPath },
     })
 
     if (authError) {
+      console.error("Auth update error:", authError)
       alert("Update auth gagal")
       return
     }
 
-    const { error: profileError } = await supabase
+    // Update table profiles
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .upsert({
-        id: user.id,
-        name,
-        avatar_url: avatarPath,
-      })
+      .upsert({ id: user.id, name, avatar_url: avatarPath })
+      .select()
+      .single()
 
     if (profileError) {
+      console.error("Profile update error:", profileError)
       alert("Update profile gagal")
       return
     }
 
-    window.dispatchEvent(new Event("profileUpdated"))
+    // Update local preview
+    const { data } = supabase.storage.from("images").getPublicUrl(profile.avatar_url)
+    setPhotoPreview(data?.publicUrl ?? "")
     setEditMode(false)
   }
+
 
   /* =====================
      Render
@@ -162,11 +167,10 @@ export default function ProfilePage() {
               <div className="w-full h-full rounded-full bg-neutral-700 animate-pulse" />
             ) : (
               <div
-                className={`w-full h-full rounded-full ${
-                  photoPreview
-                    ? "bg-cover bg-center ring-4 ring-neutral-400"
-                    : "bg-neutral-700 flex items-center justify-center text-2xl sm:text-3xl font-bold"
-                }`}
+                className={`w-full h-full rounded-full ${photoPreview
+                  ? "bg-cover bg-center ring-4 ring-neutral-400"
+                  : "bg-neutral-700 flex items-center justify-center text-2xl sm:text-3xl font-bold"
+                  }`}
                 style={photoPreview ? { backgroundImage: `url(${photoPreview})` } : undefined}
               >
                 {!photoPreview && getInitials(name)}
@@ -249,29 +253,30 @@ export default function ProfilePage() {
         <div className="grid grid-cols-4 gap-6">
           {loading
             ? Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-37 sm:h-55 md:h-92 lg:h-92  bg-neutral-700 rounded-xl animate-pulse" />
-              ))
+              <div key={i} className="h-37 sm:h-55 md:h-92 lg:h-92 bg-neutral-700 rounded-xl animate-pulse" />
+            ))
             : favoriteBooks.map(b => (
-                <div key={b.id} className="bg-[#1C1C1C] rounded-xl overflow-hidden">
-                  {b.cover_url ? (
-                    <img
-                      src={b.cover_url}
-                      className="w-full h-auto object-contain"
-                    />
-                  ) : (
-                    <div className="h-48 flex items-center justify-center text-neutral-500">
-                      No Cover
-                    </div>
-                  )}
-                </div>
-              ))
+              <div key={b.id} className="bg-[#1C1C1C] rounded-xl overflow-hidden">
+                {b.cover_url ? (
+                  <img
+                    src={b.cover_url}
+                    alt={b.title}
+                    className="w-full h-auto object-contain"
+                  />
+                ) : (
+                  <div className="h-48 flex items-center justify-center text-neutral-500">
+                    No Cover
+                  </div>
+                )}
+              </div>
+            ))
           }
 
           {!loading &&
             Array.from({ length: Math.max(0, 4 - favoriteBooks.length) }).map((_, i) => (
               <div
                 key={i}
-                className="border border-dashed border-neutral-700 rounded-l h-92 flex items-center justify-center text-neutral-600"
+                className="border border-dashed border-neutral-700 rounded-xl h-37 sm:h-55 md:h-92 lg:h-92 flex items-center justify-center text-neutral-600"
               >
                 +
               </div>

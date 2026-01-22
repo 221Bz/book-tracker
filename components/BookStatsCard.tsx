@@ -5,9 +5,8 @@ import { BookOpen } from "lucide-react"
 import { useLibraryData } from "@/components/LibraryData"
 
 export default function BookStatsCard() {
-  const { userBooks = [] } = useLibraryData() // pastikan hook return { userBooks, loading }
+  const { userBooks = [] } = useLibraryData()
 
-  // hitung langsung saat render
   const totalBooks = userBooks.length
   const totalPagesRead = userBooks.reduce((sum, b) => {
     const pages = b.pages ?? 0

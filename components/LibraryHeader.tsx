@@ -24,7 +24,7 @@ export default function LibraryHeader({ sort, setSort }: LibraryHeaderProps) {
               value="last_read"
               className="hover:bg-white/10 cursor-pointer px-4 py-2 rounded-lg transition"
             >
-              Terakhir dibaca
+              Last Read
             </SelectItem>
             <SelectItem
               value="rating"
@@ -36,7 +36,7 @@ export default function LibraryHeader({ sort, setSort }: LibraryHeaderProps) {
               value="title"
               className="hover:bg-white/10 cursor-pointer px-4 py-2 rounded-lg transition"
             >
-              Judul
+              Title
             </SelectItem>
           </SelectContent>
         </Select>

@@ -111,75 +111,75 @@ export default function ReadingGoalPage() {
     : 0
 
   return (
-        <Card className="bg-transparant max-w-md">
-          <CardContent className="space-y-5">
-          <div className="flex items-center gap-2 text-sm font-semibold text-white/80">
-  <Calendar className="w-4 h-4 text-white" />
-  <span>Monthly Goal</span>
-</div>
+    <Card className="bg-transparent max-w-md">
+      <CardContent className="space-y-5">
+        <div className="flex items-center gap-2 text-sm font-semibold text-white/80">
+          <Calendar className="w-4 h-4 text-white" />
+          <span>Monthly Goal</span>
+        </div>
 
-                {/* Progress bar */}
-                <div className="w-full h-2 bg-neutral-400 rounded">
-                  <div
-                    className="h-2 bg-indigo-500 rounded transition-all"
-                    style={{ width: `${percent}%` }}
-                  />
-                </div>
+        {/* Progress bar */}
+        <div className="w-full h-2 bg-neutral-400 rounded">
+          <div
+            className="h-2 bg-indigo-500 rounded transition-all"
+            style={{ width: `${percent}%` }}
+          />
+        </div>
 
-                <div className="flex justify-between items-center text-sm text-neutral-300">
-                  <span>{progress} / {goal?.target} books</span>
-                  <span>{percent}%</span>
-                </div>
+        <div className="flex justify-between items-center text-sm text-neutral-300">
+          <span>{progress} / {goal?.target} books</span>
+          <span>{percent}%</span>
+        </div>
 
-                {/* VIEW MODE */}
-                {!editMode && (
-                  <Button
-                    variant="secondary"
-                    className="w-full"
-                    onClick={() => setEditMode(true)}
-                  >
-                    Edit Goal
-                  </Button>
-                )}
+        {/* VIEW MODE */}
+        {!editMode && (
+          <Button
+            variant="secondary"
+            className="w-full"
+            onClick={() => setEditMode(true)}
+          >
+            Edit Goal
+          </Button>
+        )}
 
-                {/* EDIT MODE */}
-                {editMode && (
-                  <div className="space-y-3">
-                    <div>
-                      <label className="text-xs text-neutral-400">
-                        Target this month
-                      </label>
-                      <input
-                        type="number"
-                        min={1}
-                        value={target}
-                        onChange={e => setTarget(Number(e.target.value))}
-                        className="
+        {/* EDIT MODE */}
+        {editMode && (
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs text-neutral-400">
+                Target this month
+              </label>
+              <input
+                type="number"
+                min={1}
+                value={target}
+                onChange={e => setTarget(Number(e.target.value))}
+                className="
                           mt-1 w-full px-3 py-2 rounded
                           bg-neutral-700 border border-neutral-600
                           focus:outline-none focus:ring-2 focus:ring-indigo-500
                         "
-                      />
-                    </div>
+              />
+            </div>
 
-                    <div className="flex gap-2">
-                      <Button onClick={saveTarget} className="flex-1">
-                        Save
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        className="flex-1"
-                        onClick={() => {
-                          setTarget(goal!.target)
-                          setEditMode(false)
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </div>
-                )}
-          </CardContent>
-        </Card>
+            <div className="flex gap-2">
+              <Button onClick={saveTarget} className="flex-1">
+                Save
+              </Button>
+              <Button
+                variant="secondary"
+                className="flex-1"
+                onClick={() => {
+                  setTarget(goal!.target)
+                  setEditMode(false)
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   )
 }

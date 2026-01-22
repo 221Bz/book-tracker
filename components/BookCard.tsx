@@ -87,86 +87,112 @@ export default function BookCard({ book, mode = "explore" }: BookCardProps) {
   const handleSetStatus = async (status: BookStatus) => {
     if (!("volumeInfo" in book)) return;
 
+    if (!book.id) {
+      console.error("Book ID is missing:", book);
+      return;
+    }
+
     setLoading(true);
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-
-    let bookRow = null;
-
-    const { data: bookRowData, error: selectError } = await supabase
-      .from("books")
-      .select("id, pages")
-      .eq("google_books_id", book.id)
-      .single();
-
-    if (selectError) {
-      console.error(selectError);
-      setLoading(false);
-      return;
-    }
-
-    if (!bookRowData) {
-      const { data: insertedBook, error: insertError } = await supabase
-        .from("books")
-        .insert({
-          google_books_id: book.id,
-          title: book.volumeInfo.title,
-          author: book.volumeInfo.authors?.join(", ") ?? "Unknown",
-          description: book.volumeInfo.description ?? "",
-          cover_url: book.volumeInfo.imageLinks?.thumbnail ?? null,
-          published_year: book.volumeInfo.publishedDate?.slice(0, 4) ?? "",
-          genres: book.volumeInfo.categories ?? [],
-          pages: book.volumeInfo.pageCount ?? 0,
-        })
-        .select()
-        .single();
-
-      if (insertError || !insertedBook) {
-        console.error(insertError);
+      if (!user) {
+        console.warn("User not logged in");
         setLoading(false);
         return;
       }
 
-      bookRow = insertedBook;
-    } else {
-      bookRow = bookRowData;
-    }
+      // Cari buku di database
+      const { data: bookRowData, error: selectError } = await supabase
+        .from("books")
+        .select("id, pages")
+        .eq("google_books_id", book.id)
+        .maybeSingle(); // <-- pakai maybeSingle supaya tidak error kalau data kosong
 
-    const lastPages = status === "finished" ? book.volumeInfo.pageCount ?? 0 : 0;
-    const progress = status === "finished" ? 100 : 0;
+      if (selectError) {
+        console.error("Error selecting book:", selectError);
+        setLoading(false);
+        return;
+      }
 
-    await supabase.from("user_books").upsert(
-      {
-        user_id: user.id,
-        book_id: bookRow.id,
-        status,
+      let bookRow = bookRowData;
+
+      // Kalau buku belum ada, insert
+      if (!bookRow) {
+        const { data: insertedBook, error: insertError } = await supabase
+          .from("books")
+          .insert({
+            google_books_id: book.id,
+            title: book.volumeInfo.title,
+            author: book.volumeInfo.authors?.join(", ") ?? "Unknown",
+            description: book.volumeInfo.description ?? "",
+            cover_url: book.volumeInfo.imageLinks?.thumbnail ?? null,
+            published_year: book.volumeInfo.publishedDate?.slice(0, 4) ?? "",
+            genres: book.volumeInfo.categories ?? [],
+            pages: book.volumeInfo.pageCount ?? 0,
+          })
+          .select()
+          .single();
+
+        if (insertError || !insertedBook) {
+          console.error("Error inserting book:", insertError);
+          setLoading(false);
+          return;
+        }
+
+        bookRow = insertedBook;
+      }
+
+      if (!bookRow) {
+        console.error("bookRow is null after insert");
+        setLoading(false);
+        return;
+      }
+
+      // Hitung progress & last pages
+      const lastPages = status === "finished" ? book.volumeInfo.pageCount ?? 0 : 0;
+      const progress = status === "finished" ? 100 : 0;
+
+      // Upsert ke user_books
+      const { error: upsertError } = await supabase.from("user_books").upsert(
+        {
+          user_id: user.id,
+          book_id: bookRow.id,
+          status,
+          last_pages: lastPages,
+          progress,
+          rating: 0,
+          is_favorite: false,
+        },
+        { onConflict: "user_id,book_id" }
+      );
+
+      if (upsertError) {
+        console.error("Error updating user_books:", upsertError);
+        setLoading(false);
+        return;
+      }
+
+      // Update state lokal
+      setLocalBook((prev) => ({
+        ...prev,
         last_pages: lastPages,
         progress,
-        rating: 0,
-        is_favorite: false,
-      },
-      { onConflict: "user_id,book_id" }
-    );
+        total_pages: book.volumeInfo.pageCount ?? prev.total_pages,
+        book_id: bookRow.id,
+      }));
 
-    // Update localBook supaya langsung refleksi ke UI
-    setLocalBook((prev) => ({
-      ...prev,
-      last_pages: lastPages,
-      progress,
-      total_pages: book.volumeInfo.pageCount ?? prev.total_pages,
-      book_id: bookRow.id,
-    }));
-
-    setLoading(false);
-    setOpen(false);
+      setOpen(false);
+    } catch (err) {
+      console.error("Unexpected error in handleSetStatus:", err);
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   const toggleFavorite = async () => {
     if (!isUserBook) return;
@@ -183,7 +209,6 @@ export default function BookCard({ book, mode = "explore" }: BookCardProps) {
     setLoading(false);
   };
 
-  // Render pakai localBook supaya warning hilang
   const title = localBook.title;
   const author = localBook.author ?? "Unknown";
   const cover = localBook.cover_url;
@@ -207,11 +232,10 @@ export default function BookCard({ book, mode = "explore" }: BookCardProps) {
               className="absolute top-2 left-2 z-10 p-1 rounded-full"
             >
               <Heart
-                className={`w-4 h-4 transition ${
-                  isFavorite
+                className={`w-4 h-4 transition ${isFavorite
                     ? "fill-pink-500 text-pink-500"
                     : "text-white hover:text-pink-400"
-                }`}
+                  }`}
               />
             </button>
           )}
@@ -238,9 +262,8 @@ export default function BookCard({ book, mode = "explore" }: BookCardProps) {
           {desc && (
             <>
               <p
-                className={`text-sm text-neutral-400 leading-relaxed ${
-                  expanded ? "" : "line-clamp-3"
-                }`}
+                className={`text-sm text-neutral-400 leading-relaxed ${expanded ? "" : "line-clamp-3"
+                  }`}
                 onClick={(e) => {
                   e.stopPropagation();
                   setExpanded(!expanded);

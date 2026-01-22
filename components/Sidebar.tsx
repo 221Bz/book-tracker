@@ -41,7 +41,7 @@ export default function Sidebar() {
   const resolveAvatar = (path: string | null) => {
     if (!path) return null;
     if (path.startsWith("http")) return path;
-    return supabase.storage.from("avatars").getPublicUrl(path).data.publicUrl;
+    return supabase.storage.from("images").getPublicUrl(path).data.publicUrl;
   };
 
   /* =====================
@@ -66,7 +66,7 @@ export default function Sidebar() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) loadUserFromDB(session.user);
     });
-  }, []);
+  }, [supabase.auth]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -129,11 +129,10 @@ export default function Sidebar() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`flex items-center gap-3 px-3 py-2 rounded-md transition ${
-                    isActive
-                      ? "bg-[#232323] text-white"
-                      : "text-white/80 hover:bg-white/10"
-                  }`}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-md transition ${isActive
+                    ? "bg-[#232323] text-white"
+                    : "text-white/80 hover:bg-white/10"
+                    }`}
                 >
                   <Icon size={18} />
                   <span className="text-sm">{item.name}</span>
@@ -141,7 +140,7 @@ export default function Sidebar() {
               );
             })}
           </nav>
-          </div>
+        </div>
       </aside>
 
       {/* ================= MOBILE BOTTOM NAV ================= */}
@@ -154,9 +153,8 @@ export default function Sidebar() {
               <Link
                 key={item.name}
                 href={item.href}
-                className={`flex flex-col items-center text-xs ${
-                  isActive ? "text-white" : "text-white/50"
-                }`}
+                className={`flex flex-col items-center text-xs ${isActive ? "text-white" : "text-white/50"
+                  }`}
               >
                 <Icon size={22} />
               </Link>
