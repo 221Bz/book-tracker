@@ -91,7 +91,26 @@ export function useLibraryData() {
 
       if (error) return console.error(error);
 
-      const mapped: UserBook[] = (data as any[])?.map((row) => {
+      interface SupabaseRow {
+        id: string;
+        status: BookStatus;
+        progress: number;
+        rating: number;
+        last_read_at: string | null;
+        is_favorite: boolean;
+        last_pages: number;
+        books: {
+          title: string | null;
+          author: string | null;
+          genres: string[] | null;
+          cover_url: string | null;
+          description: string | null;
+          published_year: string | null;
+          pages: number | null;
+        } | null;
+      }
+
+      const mapped: UserBook[] = (data as unknown as SupabaseRow[])?.map((row) => {
         const book = row.books;
         if (!book) return null;
         return {
