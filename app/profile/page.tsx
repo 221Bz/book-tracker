@@ -168,7 +168,7 @@ export default function ProfilePage() {
             ) : (
               <div
                 className={`w-full h-full rounded-full ${photoPreview
-                  ? "bg-cover bg-center ring-4 ring-neutral-400"
+                  ? "bg-cover bg-center ring-4 ring-pink-400"
                   : "bg-neutral-700 flex items-center justify-center text-2xl sm:text-3xl font-bold"
                   }`}
                 style={photoPreview ? { backgroundImage: `url(${photoPreview})` } : undefined}
@@ -177,7 +177,7 @@ export default function ProfilePage() {
               </div>
             )}
             {editMode && !loading && (
-              <label className="absolute bottom-1 right-1 bg-pink-400 p-2 rounded-full cursor-pointer">
+              <label className="absolute bottom-1 right-1 bg-neutral-600 p-2 rounded-full cursor-pointer">
                 <Camera className="text-white" />
                 <input type="file" hidden onChange={handlePhoto} />
               </label>
