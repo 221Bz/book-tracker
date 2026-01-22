@@ -83,6 +83,32 @@ export default function BookGrid({
             </CardHeader>
 
             <CardContent className="space-y-4 pt-0 px-3 pb-3">
+              {/* Dates */}
+              {(book.started_at || book.finished_at) && (
+                <div className="flex flex-col gap-1 text-[10px] text-neutral-400 bg-neutral-800/50 p-2 rounded-md">
+                  {book.started_at && (
+                    <div className="flex justify-between">
+                      <span>Started:</span>
+                      <span className="font-medium text-white">
+                        {new Date(book.started_at).toLocaleDateString("id-ID", {
+                          day: 'numeric', month: 'short', year: 'numeric'
+                        })}
+                      </span>
+                    </div>
+                  )}
+                  {book.finished_at && (
+                    <div className="flex justify-between">
+                      <span>Finished:</span>
+                      <span className="font-medium text-green-400">
+                        {new Date(book.finished_at).toLocaleDateString("id-ID", {
+                          day: 'numeric', month: 'short', year: 'numeric'
+                        })}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="flex items-center gap-2">
                 <span className="text-xs text-white font-medium w-8 text-right">{book.progress}%</span>
                 <div className="flex-1 h-2 bg-neutral-400 rounded-full">

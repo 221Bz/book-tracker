@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Sidebar from "@/components/Sidebar"
 import { Button } from "@/components/ui/button"
-import { Camera, Heart } from "lucide-react"
+import { Camera, BookOpen, Trash2 } from "lucide-react"
 import { useLibraryData, UserBook } from "@/components/LibraryData"
 import { supabase } from "@/lib/supabaseClient"
 
@@ -20,7 +20,7 @@ interface AuthUser {
 
 export default function ProfilePage() {
   const router = useRouter()
-  const { userBooks, loading: libraryLoading } = useLibraryData()
+  const { userBooks, loading: libraryLoading, toggleOnProfile } = useLibraryData()
 
   const [user, setUser] = useState<AuthUser | null>(null)
   const [name, setName] = useState("")
@@ -31,7 +31,8 @@ export default function ProfilePage() {
   const [editMode, setEditMode] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  const [favoriteBooks, setFavoriteBooks] = useState<UserBook[]>([])
+  const [profileBooks, setProfileBooks] = useState<UserBook[]>([])
+  const [selectorOpen, setSelectorOpen] = useState(false)
 
   /* =====================
      Load Profile
@@ -69,19 +70,19 @@ export default function ProfilePage() {
   }, [router, supabase.auth, supabase.storage])
 
   /* =====================
-     Update favorites ketika userBooks berubah
+     Update profileBooks ketika userBooks berubah
   ===================== */
   useEffect(() => {
     if (!libraryLoading) {
       // pakai setTimeout 0 supaya React nggak protes
       const timer = setTimeout(() => {
-        setFavoriteBooks(userBooks.filter(b => b.is_favorite).slice(0, 4))
+        setProfileBooks(userBooks.filter(b => b.on_profile).slice(0, 4))
         setLoading(false)
       }, 0)
 
       return () => clearTimeout(timer)
     }
-  }, [userBooks, libraryLoading, setFavoriteBooks, setLoading])
+  }, [userBooks, libraryLoading, setProfileBooks, setLoading])
 
   /* =====================
      Handlers
@@ -150,6 +151,10 @@ export default function ProfilePage() {
     setEditMode(false)
   }
 
+  const handleSelectBook = (book: UserBook) => {
+    toggleOnProfile(book)
+    setSelectorOpen(false)
+  }
 
   /* =====================
      Render
@@ -233,8 +238,8 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* FAVORITES */}
-        <div className="flex items-center gap-2 mb-4 flex-none">
+        {/* FEATURED BOOKS */}
+        <div className="flex items-center justify-between gap-2 mb-4 flex-none">
           <div className="flex items-center gap-2 text-neutral-400">
             {loading ? (
               <div className="flex items-center gap-2">
@@ -243,47 +248,68 @@ export default function ProfilePage() {
               </div>
             ) : (
               <>
-                <Heart className="w-4 h-4 text-pink-400" />
-                <span>Favorites</span>
+                <BookOpen className="w-4 h-4 text-pink-400" />
+                <span>Featured Books</span>
               </>
             )}
           </div>
         </div>
 
-        <div className="grid grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {loading
             ? Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-37 sm:h-55 md:h-92 lg:h-92 bg-neutral-700 rounded-xl animate-pulse" />
+              <div key={i} className="h-37 sm:h-55 md:h-60 bg-neutral-700 rounded-xl animate-pulse" />
             ))
-            : favoriteBooks.map(b => (
-              <div key={b.id} className="bg-[#1C1C1C] rounded-xl overflow-hidden">
+            : profileBooks.map(b => (
+              <div key={b.id} className="relative group bg-[#1C1C1C] rounded-xl overflow-hidden shadow-lg h-60 flex flex-col">
                 {b.cover_url ? (
                   <img
                     src={b.cover_url}
                     alt={b.title}
-                    className="w-full h-auto object-contain"
+                    className="w-full h-3/4 object-contain pt-2"
                   />
                 ) : (
-                  <div className="h-48 flex items-center justify-center text-neutral-500">
+                  <div className="h-3/4 flex items-center justify-center text-neutral-500">
                     No Cover
                   </div>
                 )}
+                <div className="p-2 text-center text-xs text-neutral-400 line-clamp-1">
+                  {b.title}
+                </div>
+
+                <button
+                  onClick={() => toggleOnProfile(b)}
+                  className="absolute top-1 right-1 bg-black/60 rounded-full p-1 opacity-0 group-hover:opacity-100 transition text-red-400 hover:text-red-500"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
               </div>
             ))
           }
 
           {!loading &&
-            Array.from({ length: Math.max(0, 4 - favoriteBooks.length) }).map((_, i) => (
-              <div
+            Array.from({ length: Math.max(0, 4 - profileBooks.length) }).map((_, i) => (
+              <button
                 key={i}
-                className="border border-dashed border-neutral-700 rounded-xl h-37 sm:h-55 md:h-92 lg:h-92 flex items-center justify-center text-neutral-600"
+                onClick={() => setSelectorOpen(true)}
+                className="border border-dashed border-neutral-700 hover:border-neutral-500 hover:bg-neutral-800/50 transition rounded-xl h-60 flex flex-col items-center justify-center text-neutral-600 gap-2"
               >
-                +
-              </div>
+                <span className="text-3xl font-light">+</span>
+                <span className="text-xs">Add to Profile</span>
+              </button>
             ))
           }
         </div>
       </div>
+
+      <BookSelectorDialog
+        open={selectorOpen}
+        onOpenChange={setSelectorOpen}
+        userBooks={userBooks}
+        onSelect={handleSelectBook}
+      />
     </div>
   )
 }
+
+import BookSelectorDialog from "@/components/BookSelectorDialog"

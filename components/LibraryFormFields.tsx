@@ -29,11 +29,10 @@ export default function LibraryFormFields({ data, onChange }: Props) {
           className="p-0 m-0"
         >
           <Star
-            className={`w-6 h-6 transition ${
-              index <= (data.rating ?? 0)
+            className={`w-6 h-6 transition ${index <= (data.rating ?? 0)
                 ? "fill-yellow-400 text-yellow-400"
                 : "text-neutral-500"
-            }`}
+              }`}
           />
         </button>
       )
@@ -73,6 +72,26 @@ export default function LibraryFormFields({ data, onChange }: Props) {
           onChange={e => onChange("last_pages", Number(e.target.value))}
           placeholder="contoh: 120"
         />
+      </div>
+
+      {/* DATES */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="grid gap-1">
+          <Label>Mulai Baca</Label>
+          <Input
+            type="date"
+            value={data.started_at ?? ""}
+            onChange={e => onChange("started_at", e.target.value || null)}
+          />
+        </div>
+        <div className="grid gap-1">
+          <Label>Selesai Baca</Label>
+          <Input
+            type="date"
+            value={data.finished_at ?? ""}
+            onChange={e => onChange("finished_at", e.target.value || null)}
+          />
+        </div>
       </div>
 
       {/* RATING */}

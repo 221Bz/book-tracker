@@ -16,7 +16,10 @@ export interface UserBook {
   progress: number;
   rating: number;
   last_read_at: string | null;
+  started_at: string | null;
+  finished_at: string | null;
   is_favorite: boolean;
+  on_profile: boolean; // Field baru
   last_pages: number;
 
   title: string;
@@ -32,6 +35,8 @@ export type UserBookForm = {
   status: BookStatus;
   last_pages: number;
   rating: number;
+  started_at: string | null;
+  finished_at: string | null;
 };
 
 export const statusColors: Record<BookStatus, string> = {
@@ -57,6 +62,8 @@ export function useLibraryData() {
     status: "want",
     last_pages: 0,
     rating: 0,
+    started_at: null,
+    finished_at: null,
   });
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -75,7 +82,10 @@ export function useLibraryData() {
           progress,
           rating,
           last_read_at,
+          started_at,
+          finished_at,
           is_favorite,
+          on_profile,
           last_pages,
           books (
             title,
@@ -97,7 +107,10 @@ export function useLibraryData() {
         progress: number;
         rating: number;
         last_read_at: string | null;
+        started_at: string | null;
+        finished_at: string | null;
         is_favorite: boolean;
+        on_profile: boolean;
         last_pages: number;
         books: {
           title: string | null;
@@ -119,7 +132,10 @@ export function useLibraryData() {
           progress: row.progress,
           rating: row.rating,
           last_read_at: row.last_read_at,
+          started_at: row.started_at,
+          finished_at: row.finished_at,
           is_favorite: row.is_favorite,
+          on_profile: row.on_profile ?? false,
           last_pages: row.last_pages,
           title: book.title ?? "",
           author: book.author ?? "Unknown",
@@ -186,6 +202,8 @@ export function useLibraryData() {
       status: book.status,
       last_pages: book.last_pages,
       rating: book.rating,
+      started_at: book.started_at,
+      finished_at: book.finished_at,
     });
     setEditDialogOpen(true);
   };
@@ -199,6 +217,8 @@ export function useLibraryData() {
       status: formData.status,
       last_pages: formData.last_pages,
       rating: formData.rating,
+      started_at: formData.started_at,
+      finished_at: formData.finished_at,
       progress,
       last_read_at: now
     }).eq("id", selectedBook.id);
@@ -223,12 +243,40 @@ export function useLibraryData() {
     setUserBooks((prev) => prev.map((b) => (b.id === book.id ? { ...b, is_favorite: !b.is_favorite } : b)));
   };
 
+  const toggleOnProfile = async (book: UserBook) => {
+    const newValue = !book.on_profile;
+    // Optimistic update
+    setUserBooks((prev) => prev.map((b) => (b.id === book.id ? { ...b, on_profile: newValue } : b)));
+
+    const { error } = await supabase.from("user_books").update({ on_profile: newValue }).eq("id", book.id);
+    if (error) {
+      console.error(error);
+      // Revert on error
+      setUserBooks((prev) => prev.map((b) => (b.id === book.id ? { ...b, on_profile: !newValue } : b)));
+    }
+  };
+
   const handleFormChange = <K extends keyof UserBookForm>(field: K, value: UserBookForm[K]) => {
     setFormData((prev) => {
       const newData = { ...prev, [field]: value };
+
+      // Auto-update last_pages if status becomes finished
       if (field === 'status' && value === 'finished' && selectedBook?.pages) {
         newData.last_pages = selectedBook.pages;
       }
+
+      // Auto-set dates based on status
+      const today = new Date().toISOString().split('T')[0];
+
+      if (field === 'status') {
+        if (value === 'reading' && !newData.started_at) {
+          newData.started_at = today;
+        }
+        if (value === 'finished' && !newData.finished_at) {
+          newData.finished_at = today;
+        }
+      }
+
       return newData;
     });
   };
@@ -257,6 +305,7 @@ export function useLibraryData() {
     handleUpdate,
     handleDelete,
     toggleFavorite,
+    toggleOnProfile,
     handleFormChange
   };
 }

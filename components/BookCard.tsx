@@ -25,6 +25,8 @@ export interface UserBook {
   published_year?: string;
   genres?: string[];
   pages?: number;
+  started_at?: string | null;
+  finished_at?: string | null;
 }
 
 export interface GoogleBook {
@@ -80,6 +82,8 @@ export default function BookCard({ book, mode = "explore" }: BookCardProps) {
         progress: book.progress ?? 0,
         total_pages: book.total_pages ?? book.pages ?? 0,
         is_favorite: book.is_favorite ?? false,
+        started_at: book.started_at ?? null,
+        finished_at: book.finished_at ?? null,
       };
     }
   });
@@ -233,8 +237,8 @@ export default function BookCard({ book, mode = "explore" }: BookCardProps) {
             >
               <Heart
                 className={`w-4 h-4 transition ${isFavorite
-                    ? "fill-pink-500 text-pink-500"
-                    : "text-white hover:text-pink-400"
+                  ? "fill-pink-500 text-pink-500"
+                  : "text-white hover:text-pink-400"
                   }`}
               />
             </button>
@@ -283,6 +287,32 @@ export default function BookCard({ book, mode = "explore" }: BookCardProps) {
                 </button>
               )}
             </>
+          )}
+
+          {/* Dates (Only for UserBooks) */}
+          {(localBook.started_at || localBook.finished_at) && (
+            <div className="flex flex-col gap-1 text-[10px] text-neutral-400 bg-neutral-800/50 p-2 rounded-md mt-2 mb-1">
+              {localBook.started_at && (
+                <div className="flex justify-between">
+                  <span>Started:</span>
+                  <span className="font-medium text-white">
+                    {new Date(localBook.started_at).toLocaleDateString("id-ID", {
+                      day: 'numeric', month: 'short', year: 'numeric'
+                    })}
+                  </span>
+                </div>
+              )}
+              {localBook.finished_at && (
+                <div className="flex justify-between">
+                  <span>Finished:</span>
+                  <span className="font-medium text-green-400">
+                    {new Date(localBook.finished_at).toLocaleDateString("id-ID", {
+                      day: 'numeric', month: 'short', year: 'numeric'
+                    })}
+                  </span>
+                </div>
+              )}
+            </div>
           )}
 
           {genres.length > 0 && (
