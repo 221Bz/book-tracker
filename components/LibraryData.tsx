@@ -224,7 +224,13 @@ export function useLibraryData() {
   };
 
   const handleFormChange = <K extends keyof UserBookForm>(field: K, value: UserBookForm[K]) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev) => {
+      const newData = { ...prev, [field]: value };
+      if (field === 'status' && value === 'finished' && selectedBook?.pages) {
+        newData.last_pages = selectedBook.pages;
+      }
+      return newData;
+    });
   };
 
   return {
