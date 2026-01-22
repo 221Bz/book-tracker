@@ -99,10 +99,12 @@ export default function RegisterPage() {
   // REGISTER GOOGLE
   // ------------------------------------------------
   async function registerWithGoogle() {
-    const token = getCaptchaToken();
-    if (!token) {
-      alert("Silakan centang Recaptcha dulu.");
-      return;
+    if (process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
+      const token = getCaptchaToken();
+      if (!token) {
+        alert("Silakan centang Recaptcha dulu.");
+        return;
+      }
     }
 
     try {
