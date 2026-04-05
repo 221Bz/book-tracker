@@ -329,7 +329,7 @@ export default function ProfilePage() {
                 ))}
                 {userBooks.filter(b => b.is_favorite).length === 0 && (
                   <p className="col-span-full text-center text-neutral-400 py-10">
-                    Kamu belum memiliki buku favorit di Library.
+                    You don't have any favorite books in your Library yet.
                   </p>
                 )}
               </div>
