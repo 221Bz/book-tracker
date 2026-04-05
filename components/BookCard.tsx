@@ -45,9 +45,10 @@ export interface GoogleBook {
 export interface BookCardProps {
   book: GoogleBook | UserBook;
   mode?: Mode;
+  hideDates?: boolean;
 }
 
-export default function BookCard({ book, mode = "explore" }: BookCardProps) {
+export default function BookCard({ book, mode = "explore", hideDates = false }: BookCardProps) {
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [open, setOpen] = useState(false);
@@ -203,12 +204,18 @@ export default function BookCard({ book, mode = "explore" }: BookCardProps) {
 
     setLoading(true);
 
+    const newIsFavorite = !isFavorite;
+    const updates: any = { is_favorite: newIsFavorite };
+    if (!newIsFavorite) {
+      updates.on_profile = false;
+    }
+
     const { error } = await supabase
       .from("user_books")
-      .update({ is_favorite: !isFavorite })
+      .update(updates)
       .eq("id", (book as UserBook).id);
 
-    if (!error) setIsFavorite(!isFavorite);
+    if (!error) setIsFavorite(newIsFavorite);
 
     setLoading(false);
   };
@@ -290,7 +297,7 @@ export default function BookCard({ book, mode = "explore" }: BookCardProps) {
           )}
 
           {/* Dates (Only for UserBooks) */}
-          {(localBook.started_at || localBook.finished_at) && (
+          {!hideDates && (localBook.started_at || localBook.finished_at) && (
             <div className="flex flex-col gap-1 text-[10px] text-neutral-400 bg-neutral-800/50 p-2 rounded-md mt-2 mb-1">
               {localBook.started_at && (
                 <div className="flex justify-between">

@@ -22,9 +22,9 @@ export default function Dashboard() {
 
   return (
     <div className="flex min-h-screen text-white">
-        <Sidebar />
+      <Sidebar />
 
-        <main className="
+      <main className="
   w-full
   px-4 sm:px-6 md:px-10
   pt-6
@@ -42,15 +42,15 @@ export default function Dashboard() {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
-{/* LEFT COLUMN */}
-<div className="lg:col-span-4 space-y-6">
-  {loading ? <QuoteSkeleton /> : <Quote />}
+          {/* LEFT COLUMN */}
+          <div className="lg:col-span-4 space-y-6">
+            {loading ? <QuoteSkeleton /> : <Quote />}
 
-  <div className="grid grid-cols-2 gap-4 lg:grid-cols-1">
-    {loading ? <BookStatsCardSkeleton /> : <BookStatsCard />}
-    {loading ? <ReadingGoalSkeleton /> : <NotesCard />}
-  </div>
-</div>
+            <div className="grid grid-cols-2 gap-4 lg:grid-cols-1">
+              {loading ? <BookStatsCardSkeleton /> : <BookStatsCard />}
+              {loading ? <ReadingGoalSkeleton /> : <NotesCard />}
+            </div>
+          </div>
 
 
 
@@ -75,8 +75,8 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
               {loading
                 ? Array.from({ length: 4 }).map((_, i) => (
-                    <BookCardSkeleton key={i} />
-                  ))
+                  <BookCardSkeleton key={i} />
+                ))
                 : favoriteBooks.length === 0
                   ? (
                     <p className="sm:col-span-2 text-center text-neutral-400 mt-10">
@@ -84,8 +84,8 @@ export default function Dashboard() {
                     </p>
                   )
                   : favoriteBooks.map(book => (
-                      <BookCard key={book.id} book={book} mode="library" />
-                    ))
+                    <BookCard key={book.id} book={book} mode="library" hideDates={true} />
+                  ))
               }
             </div>
           </div>

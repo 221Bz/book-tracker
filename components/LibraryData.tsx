@@ -238,9 +238,15 @@ export function useLibraryData() {
   };
 
   const toggleFavorite = async (book: UserBook) => {
-    const { error } = await supabase.from("user_books").update({ is_favorite: !book.is_favorite }).eq("id", book.id);
+    const newIsFavorite = !book.is_favorite;
+    const updates: Partial<UserBook> = { is_favorite: newIsFavorite };
+    if (!newIsFavorite) {
+      updates.on_profile = false; // reset when unfavorited
+    }
+
+    const { error } = await supabase.from("user_books").update(updates).eq("id", book.id);
     if (error) return console.error(error);
-    setUserBooks((prev) => prev.map((b) => (b.id === book.id ? { ...b, is_favorite: !b.is_favorite } : b)));
+    setUserBooks((prev) => prev.map((b) => (b.id === book.id ? { ...b, ...updates } : b)));
   };
 
   const toggleOnProfile = async (book: UserBook) => {

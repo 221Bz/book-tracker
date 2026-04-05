@@ -20,7 +20,7 @@ interface AuthUser {
 
 export default function ProfilePage() {
   const router = useRouter()
-  const { userBooks, loading: libraryLoading } = useLibraryData()
+  const { userBooks, loading: libraryLoading, toggleOnProfile } = useLibraryData()
 
   const [user, setUser] = useState<AuthUser | null>(null)
   const [name, setName] = useState("")
@@ -30,6 +30,7 @@ export default function ProfilePage() {
   const [photoPreview, setPhotoPreview] = useState("")
   const [editMode, setEditMode] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [favModalOpen, setFavModalOpen] = useState(false)
 
   const [favoriteBooks, setFavoriteBooks] = useState<UserBook[]>([])
 
@@ -75,7 +76,7 @@ export default function ProfilePage() {
     if (!libraryLoading) {
       // pakai setTimeout 0 supaya React nggak protes
       const timer = setTimeout(() => {
-        setFavoriteBooks(userBooks.filter(b => b.is_favorite).slice(0, 4))
+        setFavoriteBooks(userBooks.filter(b => b.on_profile && b.is_favorite).slice(0, 4))
         setLoading(false)
       }, 0)
 
@@ -245,6 +246,14 @@ export default function ProfilePage() {
               <>
                 <Heart className="w-4 h-4 text-pink-400" />
                 <span>Favorites</span>
+                {!loading && (
+                  <button
+                    onClick={() => setFavModalOpen(true)}
+                    className="ml-4 text-xs bg-neutral-800 hover:bg-neutral-700 px-3 py-1 rounded text-white"
+                  >
+                    Edit
+                  </button>
+                )}
               </>
             )}
           </div>
@@ -284,6 +293,50 @@ export default function ProfilePage() {
           }
         </div>
       </div>
+
+      {/* Edit Favorites Modal */}
+      {favModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex flex-col pt-10 px-4 pb-4 items-center justify-center">
+          <div className="bg-[#1C1C1C] flex flex-col p-4 rounded-xl max-w-4xl w-full max-h-[80vh]">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-white font-bold text-xl">Select Favorites</h2>
+              <button onClick={() => setFavModalOpen(false)} className="text-neutral-400 hover:text-white">Close</button>
+            </div>
+
+            <div className="overflow-y-auto flex-1 pr-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {userBooks.filter(b => b.is_favorite).map(book => (
+                  <div
+                    key={book.id}
+                    className="relative cursor-pointer group"
+                    onClick={() => toggleOnProfile(book)}
+                  >
+                    <div className={`p-1 border-2 rounded-xl h-48 md:h-56 ${book.on_profile ? 'border-pink-500' : 'border-transparent group-hover:border-neutral-600'}`}>
+                      {book.cover_url ? (
+                        <img src={book.cover_url} className="w-full h-full object-cover rounded-lg" />
+                      ) : (
+                        <div className="w-full h-full bg-neutral-800 rounded-lg flex items-center justify-center text-xs text-neutral-500 text-center p-2">
+                          {book.title}
+                        </div>
+                      )}
+                    </div>
+                    {book.on_profile && (
+                      <div className="absolute top-3 right-3 p-1.5 bg-black/60 rounded-full">
+                        <Heart className="w-4 h-4 transition fill-pink-500 text-pink-500" />
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {userBooks.filter(b => b.is_favorite).length === 0 && (
+                  <p className="col-span-full text-center text-neutral-400 py-10">
+                    Kamu belum memiliki buku favorit di Library.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
