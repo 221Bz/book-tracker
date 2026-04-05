@@ -8,7 +8,7 @@ export interface GoogleBook {
     title: string
     authors?: string[]
     description?: string
-    categories?: string[] 
+    categories?: string[]
     imageLinks?: {
       thumbnail?: string
     }
@@ -33,17 +33,28 @@ export function useGoogleBookData(search: string) {
       setError(null)
 
       try {
-        const res = await fetch(
-          `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(search)}`
-        )
-        const data: { items?: GoogleBook[] } = await res.json()
-        setBooks(data.items ?? [])
+        const apiKey = process.env.NEXT_PUBLIC_GOOGLE_BOOKS_API_KEY;
+        const url = new URL('https://www.googleapis.com/books/v1/volumes');
+        url.searchParams.set('q', search);
+        if (apiKey) {
+          url.searchParams.set('key', apiKey);
+        }
+
+        const res = await fetch(url.toString());
+
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          throw new Error(errorData?.error?.message || `Error fetching books (Status: ${res.status})`);
+        }
+
+        const data: { items?: GoogleBook[] } = await res.json();
+        setBooks(data.items ?? []);
       } catch (err: unknown) {
-        console.error(err)
-        setError("Gagal mengambil data buku")
-        setBooks([])
+        console.error(err);
+        setError(err instanceof Error ? err.message : "Gagal mengambil data buku");
+        setBooks([]);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }, 500)
 
