@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabaseClient"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "lucide-react"
+import { useLanguage } from "@/context/LanguageContext"
 
 interface Goal {
   id: string
@@ -18,6 +19,7 @@ export default function ReadingGoalPage() {
   const [progress, setProgress] = useState(0)
   const [target, setTarget] = useState(10)
   const [editMode, setEditMode] = useState(false)
+  const { t } = useLanguage()
 
   useEffect(() => {
     const loadGoal = async () => {
@@ -115,7 +117,7 @@ export default function ReadingGoalPage() {
       <CardContent className="space-y-5">
         <div className="flex items-center gap-2 text-sm font-semibold text-white/80">
           <Calendar className="w-4 h-4 text-white" />
-          <span>Monthly Goal</span>
+          <span>{t("Monthly Goal")}</span>
         </div>
 
         {/* Progress bar */}
@@ -127,7 +129,7 @@ export default function ReadingGoalPage() {
         </div>
 
         <div className="flex justify-between items-center text-sm text-neutral-300">
-          <span>{progress} / {goal?.target} books</span>
+          <span>{progress} / {goal?.target} {t("books")}</span>
           <span>{percent}%</span>
         </div>
 
@@ -138,7 +140,7 @@ export default function ReadingGoalPage() {
             className="w-full"
             onClick={() => setEditMode(true)}
           >
-            Edit Goal
+            {t("Edit Goal")}
           </Button>
         )}
 
@@ -147,7 +149,7 @@ export default function ReadingGoalPage() {
           <div className="space-y-3">
             <div>
               <label className="text-xs text-neutral-400">
-                Target this month
+                {t("Target this month")}
               </label>
               <input
                 type="number"
@@ -164,7 +166,7 @@ export default function ReadingGoalPage() {
 
             <div className="flex gap-2">
               <Button onClick={saveTarget} className="flex-1">
-                Save
+                {t("Save")}
               </Button>
               <Button
                 variant="secondary"
@@ -174,7 +176,7 @@ export default function ReadingGoalPage() {
                   setEditMode(false)
                 }}
               >
-                Cancel
+                {t("Cancel")}
               </Button>
             </div>
           </div>

@@ -2,6 +2,7 @@
 
 import AddDialog from "./DialogAdd";
 import { ReactNode } from "react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface EditDialogProps {
   open: boolean;
@@ -21,11 +22,12 @@ export default function EditDialog({
   onSave,
   onCancel,
 }: EditDialogProps) {
+  const { t } = useLanguage();
   return (
     <AddDialog
       open={open}
       setOpen={setOpen}
-      title={title}
+      title={t(title)}
       onSave={onSave}
       onCancel={onCancel}
     >

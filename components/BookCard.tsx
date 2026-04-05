@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Heart } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export type Mode = "explore" | "library";
 export type BookStatus = "want" | "reading" | "finished";
@@ -49,6 +50,7 @@ export interface BookCardProps {
 }
 
 export default function BookCard({ book, mode = "explore", hideDates = false }: BookCardProps) {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [open, setOpen] = useState(false);
@@ -290,7 +292,7 @@ export default function BookCard({ book, mode = "explore", hideDates = false }: 
                   }}
                   className="self-start text-xs text-pink-400 hover:underline"
                 >
-                  {expanded ? "View less" : "View all"}
+                  {t(expanded ? "View less" : "View all")}
                 </button>
               )}
             </>
@@ -300,7 +302,7 @@ export default function BookCard({ book, mode = "explore", hideDates = false }: 
           {!hideDates && isUserBook && (
             <div className="flex flex-col gap-1 text-[10px] text-neutral-400 bg-neutral-800/50 p-2 rounded-md mt-2 mb-1">
               <div className="flex justify-between">
-                <span>Started:</span>
+                <span>{t("Started:")}</span>
                 <span className="font-medium text-white">
                   {localBook.started_at
                     ? new Date(localBook.started_at).toLocaleDateString("id-ID", {
@@ -310,7 +312,7 @@ export default function BookCard({ book, mode = "explore", hideDates = false }: 
                 </span>
               </div>
               <div className="flex justify-between">
-                <span>Finished:</span>
+                <span>{t("Finished:")}</span>
                 <span className="font-medium text-green-400">
                   {localBook.finished_at
                     ? new Date(localBook.finished_at).toLocaleDateString("id-ID", {
@@ -349,7 +351,7 @@ export default function BookCard({ book, mode = "explore", hideDates = false }: 
             <div className="flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-white" />
               <span className="text-white font-semibold text-lg">
-                Add to Library
+                {t("Add to Library")}
               </span>
             </div>
 
@@ -359,21 +361,21 @@ export default function BookCard({ book, mode = "explore", hideDates = false }: 
                 disabled={loading}
                 onClick={() => handleSetStatus("reading")}
               >
-                Reading
+                {t("Reading")}
               </Button>
               <Button
                 variant="default"
                 disabled={loading}
                 onClick={() => handleSetStatus("want")}
               >
-                Want to Read
+                {t("Want to Read")}
               </Button>
               <Button
                 variant="default"
                 disabled={loading}
                 onClick={() => handleSetStatus("finished")}
               >
-                Finished
+                {t("Finished")}
               </Button>
             </div>
           </div>

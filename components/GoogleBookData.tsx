@@ -61,7 +61,7 @@ export function useGoogleBookData(search: string) {
         setBooks(data.items ?? []);
       } catch (err: unknown) {
         console.error(err);
-        setError(err instanceof Error ? err.message : "Gagal mengambil data buku");
+        setError(err instanceof Error ? err.message : "Failed to fetch book data");
         setBooks([]);
       } finally {
         setLoading(false);

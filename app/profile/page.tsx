@@ -18,8 +18,11 @@ interface AuthUser {
   }
 }
 
+import { useLanguage } from "@/context/LanguageContext"
+
 export default function ProfilePage() {
   const router = useRouter()
+  const { t } = useLanguage()
   const { userBooks, loading: libraryLoading, toggleOnProfile } = useLibraryData()
 
   const [user, setUser] = useState<AuthUser | null>(null)
@@ -112,7 +115,7 @@ export default function ProfilePage() {
 
       if (uploadError) {
         console.error("Upload error:", uploadError)
-        alert("Upload avatar gagal")
+        alert("Upload avatar failed")
         return
       }
 
@@ -128,7 +131,7 @@ export default function ProfilePage() {
 
     if (authError) {
       console.error("Auth update error:", authError)
-      alert("Update auth gagal")
+      alert("Failed to update authentication")
       return
     }
 
@@ -141,7 +144,7 @@ export default function ProfilePage() {
 
     if (profileError) {
       console.error("Profile update error:", profileError)
-      alert("Update profile gagal")
+      alert("Failed to update profile")
       return
     }
 
@@ -198,7 +201,7 @@ export default function ProfilePage() {
                   className="w-full rounded-xl px-4 py-2 text-white outline"
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  placeholder="Name"
+                  placeholder={t("Name")}
                 />
                 <input
                   className="w-full rounded-xl px-4 py-2 text-white outline"
@@ -209,16 +212,16 @@ export default function ProfilePage() {
                 <input
                   type="password"
                   className="w-full rounded-xl px-4 py-2 text-white outline"
-                  placeholder="New password"
+                  placeholder={t("New password")}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                 />
                 <div className="flex gap-2 justify-center sm:justify-end mt-4">
                   <Button onClick={saveProfile} className="bg-neutral-500 hover:bg-neutral-600 text-white">
-                    Save
+                    {t("Save")}
                   </Button>
                   <Button variant="secondary" onClick={() => setEditMode(false)}>
-                    Cancel
+                    {t("Cancel")}
                   </Button>
                 </div>
               </>
@@ -227,7 +230,7 @@ export default function ProfilePage() {
                 <div className="text-2xl font-bold p-0">{name}</div>
                 <div className="text-neutral-400 p-0">{email}</div>
                 <Button variant="secondary" className="mt-4" onClick={() => setEditMode(true)}>
-                  Edit Profile
+                  {t("Edit Profile")}
                 </Button>
               </>
             )}
@@ -245,13 +248,13 @@ export default function ProfilePage() {
             ) : (
               <>
                 <Heart className="w-4 h-4 text-pink-400" />
-                <span>Favorites</span>
+                <span>{t("Favorite Books")}</span>
                 {!loading && (
                   <button
                     onClick={() => setFavModalOpen(true)}
                     className="ml-4 text-xs bg-neutral-800 hover:bg-neutral-700 px-3 py-1 rounded text-white"
                   >
-                    Edit
+                    {t("Edit")}
                   </button>
                 )}
               </>
@@ -274,7 +277,7 @@ export default function ProfilePage() {
                   />
                 ) : (
                   <div className="h-48 flex items-center justify-center text-neutral-500">
-                    No Cover
+                    {t("No Cover")}
                   </div>
                 )}
               </div>
@@ -299,8 +302,8 @@ export default function ProfilePage() {
         <div className="fixed inset-0 z-50 bg-black/80 flex flex-col pt-10 px-4 pb-4 items-center justify-center">
           <div className="bg-[#1C1C1C] flex flex-col p-4 rounded-xl max-w-4xl w-full max-h-[80vh]">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-white font-bold text-xl">Select Favorites</h2>
-              <button onClick={() => setFavModalOpen(false)} className="text-neutral-400 hover:text-white">Close</button>
+              <h2 className="text-white font-bold text-xl">{t("Select Favorites")}</h2>
+              <button onClick={() => setFavModalOpen(false)} className="text-neutral-400 hover:text-white">{t("Close")}</button>
             </div>
 
             <div className="overflow-y-auto flex-1 pr-2">
@@ -329,7 +332,7 @@ export default function ProfilePage() {
                 ))}
                 {userBooks.filter(b => b.is_favorite).length === 0 && (
                   <p className="col-span-full text-center text-neutral-400 py-10">
-                    You don't have any favorite books in your Library yet.
+                    {t("You don't have any favorite books in your Library yet.")}
                   </p>
                 )}
               </div>

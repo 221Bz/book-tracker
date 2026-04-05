@@ -9,8 +9,10 @@ import DeleteDialog from "@/components/DialogDelete"
 import LibraryFormFields from "@/components/LibraryFormFields"
 import { useLibraryData } from "@/components/LibraryData"
 import { BookGridSkeleton, LibraryHeaderSkeleton, LibraryTabsSkeleton } from "@/components/Skeletons"
+import { useLanguage } from "@/context/LanguageContext"
 
 export default function MyLibrary() {
+  const { t } = useLanguage();
   const {
     filteredBooks,
     status,
@@ -46,8 +48,8 @@ export default function MyLibrary() {
             <BookGridSkeleton count={6} />
           ) : filteredBooks.length === 0 ? (
             <div className="text-center text-white/60 mt-10">
-              <p className="text-lg">No books found in your library.</p>
-              <p className="text-sm mt-2">Try adding some books to start tracking your reading.</p>
+              <p className="text-lg">{t("No books found in your library.")}</p>
+              <p className="text-sm mt-2">{t("Try adding some books to start tracking your reading.")}</p>
             </div>
           ) : (
             <BookGrid

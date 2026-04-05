@@ -1,6 +1,7 @@
 import './globals.css'
 
 import { UserProvider } from '@/context/UserContext'
+import { LanguageProvider } from '@/context/LanguageContext'
 
 export const metadata = {
   title: "BookGraph",
@@ -13,15 +14,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="id">
-    <head>
-      <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    </head>
-    <body className="bg-[#121212] min-h-screen">
+      <head>
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+      </head>
+      <body className="bg-[#121212] min-h-screen">
         <UserProvider>
-          {children}
+          <LanguageProvider>
+            {children}
+          </LanguageProvider>
         </UserProvider>
-    </body>
-  </html>
-  
+      </body>
+    </html>
+
   )
 }

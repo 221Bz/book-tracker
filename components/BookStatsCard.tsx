@@ -3,9 +3,11 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { BookOpen } from "lucide-react"
 import { useLibraryData } from "@/components/LibraryData"
+import { useLanguage } from "@/context/LanguageContext"
 
 export default function BookStatsCard() {
   const { userBooks = [] } = useLibraryData()
+  const { t } = useLanguage()
 
   const totalBooks = userBooks.length
   const totalPagesRead = userBooks.reduce((sum, b) => {
@@ -19,17 +21,17 @@ export default function BookStatsCard() {
       <CardContent className="space-y-3">
         <div className="flex items-center gap-2 text-sm font-semibold text-white/80">
           <BookOpen className="w-4 h-4 text-white" />
-          <span>Reading Overview</span>
+          <span>{t("Reading Overview")}</span>
         </div>
 
         <div className="text-white">
-          <p className="text-lg font-bold">{totalBooks} books</p>
-          <p className="text-sm text-white/80">From library</p>
+          <p className="text-lg font-bold">{totalBooks} {t("books")}</p>
+          <p className="text-sm text-white/80">{t("From library")}</p>
         </div>
 
         <div className="text-white">
-          <p className="text-lg font-bold">{totalPagesRead.toLocaleString()} pages</p>
-          <p className="text-sm text-white/80">Pages read</p>
+          <p className="text-lg font-bold">{totalPagesRead.toLocaleString()} {t("Pages read")}</p>
+          <p className="text-sm text-white/80">{t("Pages read")}</p>
         </div>
       </CardContent>
     </Card>

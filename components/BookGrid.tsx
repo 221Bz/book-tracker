@@ -4,6 +4,7 @@ import { UserBook, statusColors } from "./LibraryData";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Trash2, RefreshCw, Heart } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface BookGridProps {
   books: UserBook[];
@@ -25,6 +26,7 @@ export default function BookGrid({
   onToggleFavorite,
   renderStars,
 }: BookGridProps) {
+  const { t } = useLanguage();
   return (
     <div className="overflow-y-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 pr-2">
       {books.map((book) => {
@@ -47,7 +49,7 @@ export default function BookGrid({
               <div className="flex justify-between items-start gap-2">
                 <CardTitle className="text-lg text-white flex-1 wrap-break-words">{book.title}</CardTitle>
                 <span className={`px-2 py-1 rounded-full text-xs font-semibold ${statusColors[book.status]}`}>
-                  {book.status === "finished" ? "Finished" : book.status === "reading" ? "Reading" : "Want to Read"}
+                  {t(book.status === "finished" ? "Finished" : book.status === "reading" ? "Reading" : "Want to Read")}
                 </span>
               </div>
 
@@ -63,7 +65,7 @@ export default function BookGrid({
                   onClick={() => setExpandedBookId(isExpanded ? null : book.id)}
                   className="self-start text-xs text-pink-400 hover:underline"
                 >
-                  {isExpanded ? "View less" : "View all"}
+                  {t(isExpanded ? "View less" : "View all")}
                 </button>
               )}
 
@@ -84,30 +86,28 @@ export default function BookGrid({
 
             <CardContent className="space-y-4 pt-0 px-3 pb-3">
               {/* Dates */}
-              {(book.started_at || book.finished_at) && (
-                <div className="flex flex-col gap-1 text-[10px] text-neutral-400 bg-neutral-800/50 p-2 rounded-md">
-                  {book.started_at && (
-                    <div className="flex justify-between">
-                      <span>Started:</span>
-                      <span className="font-medium text-white">
-                        {new Date(book.started_at).toLocaleDateString("id-ID", {
-                          day: 'numeric', month: 'short', year: 'numeric'
-                        })}
-                      </span>
-                    </div>
-                  )}
-                  {book.finished_at && (
-                    <div className="flex justify-between">
-                      <span>Finished:</span>
-                      <span className="font-medium text-green-400">
-                        {new Date(book.finished_at).toLocaleDateString("id-ID", {
-                          day: 'numeric', month: 'short', year: 'numeric'
-                        })}
-                      </span>
-                    </div>
-                  )}
+              <div className="flex flex-col gap-1 text-[10px] text-neutral-400 bg-neutral-800/50 p-2 rounded-md">
+                <div className="flex justify-between">
+                  <span>{t("Started:")}</span>
+                  <span className="font-medium text-white">
+                    {book.started_at
+                      ? new Date(book.started_at).toLocaleDateString("id-ID", {
+                        day: 'numeric', month: 'short', year: 'numeric'
+                      })
+                      : "-"}
+                  </span>
                 </div>
-              )}
+                <div className="flex justify-between">
+                  <span>{t("Finished:")}</span>
+                  <span className="font-medium text-green-400">
+                    {book.finished_at
+                      ? new Date(book.finished_at).toLocaleDateString("id-ID", {
+                        day: 'numeric', month: 'short', year: 'numeric'
+                      })
+                      : "-"}
+                  </span>
+                </div>
+              </div>
 
               <div className="flex items-center gap-2">
                 <span className="text-xs text-white font-medium w-8 text-right">{book.progress}%</span>
@@ -119,7 +119,7 @@ export default function BookGrid({
               <div className="flex justify-between gap-2">
                 <Button size="sm" variant="secondary" className="flex-1" onClick={() => onUpdateClick(book)}>
                   <RefreshCw className="w-4 h-4 mr-1" />
-                  Update
+                  {t("Update")}
                 </Button>
 
                 <Button size="sm" variant="destructive" onClick={() => onDeleteClick(book.id)}>

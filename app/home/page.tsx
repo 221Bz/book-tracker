@@ -15,9 +15,11 @@ import {
   ReadingGoalSkeleton,
   Skel
 } from "@/components/Skeletons"
+import { useLanguage } from "@/context/LanguageContext"
 
 export default function Dashboard() {
   const { userBooks = [], loading } = useLibraryData()
+  const { t } = useLanguage()
   const favoriteBooks = userBooks.filter(book => book.is_favorite)
 
   return (
@@ -66,7 +68,7 @@ export default function Dashboard() {
                   className="rounded-full bg-neutral-800 hover:bg-neutral-700 text-sm px-4 py-2 text-white"
                 >
                   <Heart className="w-4 h-4 mr-2 text-pink-400" />
-                  Favorite Books
+                  {t("Favorite Books")}
                 </Button>
               )}
             </div>
@@ -80,7 +82,7 @@ export default function Dashboard() {
                 : favoriteBooks.length === 0
                   ? (
                     <p className="sm:col-span-2 text-center text-neutral-400 mt-10">
-                      You haven’t favorited any books yet
+                      {t("You haven’t favorited any books yet")}
                     </p>
                   )
                   : favoriteBooks.map(book => (

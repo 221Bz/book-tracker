@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select"
 import { UserBookForm } from "./LibraryData"
 import { Star } from "lucide-react"
+import { useLanguage } from "@/context/LanguageContext"
 
 interface Props {
   data: UserBookForm
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export default function LibraryFormFields({ data, onChange }: Props) {
+  const { t } = useLanguage();
   const renderStars = () => {
     return Array.from({ length: 5 }).map((_, i) => {
       const index = i + 1
@@ -30,8 +32,8 @@ export default function LibraryFormFields({ data, onChange }: Props) {
         >
           <Star
             className={`w-6 h-6 transition ${index <= (data.rating ?? 0)
-                ? "fill-yellow-400 text-yellow-400"
-                : "text-neutral-500"
+              ? "fill-yellow-400 text-yellow-400"
+              : "text-neutral-500"
               }`}
           />
         </button>
@@ -44,7 +46,7 @@ export default function LibraryFormFields({ data, onChange }: Props) {
 
       {/* STATUS */}
       <div className="grid gap-1">
-        <Label>Status</Label>
+        <Label>{t("Status")}</Label>
         <Select
           value={data.status}
           onValueChange={v =>
@@ -55,29 +57,29 @@ export default function LibraryFormFields({ data, onChange }: Props) {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="want">Want to Read</SelectItem>
-            <SelectItem value="reading">Reading</SelectItem>
-            <SelectItem value="finished">Finished</SelectItem>
+            <SelectItem value="want">{t("Want to Read")}</SelectItem>
+            <SelectItem value="reading">{t("Reading")}</SelectItem>
+            <SelectItem value="finished">{t("Finished")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       {/* LATEST PAGE */}
       <div className="grid gap-1">
-        <Label>Halaman Terakhir Dibaca</Label>
+        <Label>{t("Last page read")}</Label>
         <Input
           type="number"
           min={0}
           value={data.last_pages}
           onChange={e => onChange("last_pages", Number(e.target.value))}
-          placeholder="contoh: 120"
+          placeholder={t("example: 120")}
         />
       </div>
 
       {/* DATES */}
       <div className="grid grid-cols-2 gap-4">
         <div className="grid gap-1">
-          <Label>Mulai Baca</Label>
+          <Label>{t("Date Started")}</Label>
           <Input
             type="date"
             value={data.started_at ?? ""}
@@ -85,7 +87,7 @@ export default function LibraryFormFields({ data, onChange }: Props) {
           />
         </div>
         <div className="grid gap-1">
-          <Label>Selesai Baca</Label>
+          <Label>{t("Date Finished")}</Label>
           <Input
             type="date"
             value={data.finished_at ?? ""}
@@ -96,7 +98,7 @@ export default function LibraryFormFields({ data, onChange }: Props) {
 
       {/* RATING */}
       <div className="grid gap-1">
-        <Label>Rating</Label>
+        <Label>{t("Rating")}</Label>
         <div className="flex gap-1">
           {renderStars()}
         </div>

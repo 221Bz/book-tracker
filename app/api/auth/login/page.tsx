@@ -69,7 +69,7 @@ export default function LoginPage() {
       });
 
       if (error || !data.user) {
-        alert("Email atau password salah.");
+        alert("Incorrect email or password.");
         return;
       }
 
@@ -90,7 +90,7 @@ export default function LoginPage() {
       router.push('/home');
     } catch (err: unknown) {
       console.error(err);
-      alert("Terjadi kesalahan saat login");
+      alert("An error occurred during login.");
     } finally {
       setLoading(false);
     }
@@ -118,7 +118,7 @@ export default function LoginPage() {
       });
     } catch (err: unknown) {
       console.error(err);
-      alert("Login Google gagal");
+      alert("Google login failed.");
     }
   }
 

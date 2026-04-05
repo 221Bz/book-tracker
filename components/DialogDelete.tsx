@@ -9,6 +9,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface DeleteDialogProps {
   open: boolean;
@@ -22,20 +23,21 @@ export default function DeleteDialog({
   open,
   setOpen,
   onConfirm,
-  title = "Konfirmasi Hapus",
-  message = "Apakah Anda yakin ingin menghapus data ini?",
+  title = "Delete Confirmation",
+  message = "Are you sure you want to delete this data?",
 }: DeleteDialogProps) {
+  const { t } = useLanguage();
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{message}</DialogDescription>
+          <DialogTitle>{t(title)}</DialogTitle>
+          <DialogDescription>{t(message)}</DialogDescription>
         </DialogHeader>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>
-            Batal
+            {t("Cancel")}
           </Button>
           <Button
             variant="destructive"
@@ -44,7 +46,7 @@ export default function DeleteDialog({
               setOpen(false); // tutup modal
             }}
           >
-            Hapus
+            {t("Delete")}
           </Button>
         </DialogFooter>
       </DialogContent>

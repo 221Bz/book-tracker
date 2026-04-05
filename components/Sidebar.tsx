@@ -6,6 +6,7 @@ import { supabase } from "../lib/supabaseClient";
 import { Home, Library, Globe, UserCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { User } from "@supabase/supabase-js";
+import { useLanguage } from "../context/LanguageContext";
 
 /* =====================
    Types
@@ -24,6 +25,7 @@ interface AuthUser {
 export default function Sidebar() {
   const router = useRouter();
   const pathname = usePathname() || "/";
+  const { t, language, setLanguage } = useLanguage();
 
   const [user, setUser] = useState<AuthUser | null>(null);
 
@@ -121,7 +123,7 @@ export default function Sidebar() {
           </div>
 
           {/* Menu */}
-          <nav className="px-4 py-4 space-y-1">
+          <nav className="px-4 py-4 space-y-1 flex-1">
             {menuItems.map((item) => {
               const isActive = pathname.startsWith(item.href);
               const Icon = item.icon;
@@ -135,11 +137,22 @@ export default function Sidebar() {
                     }`}
                 >
                   <Icon size={18} />
-                  <span className="text-sm">{item.name}</span>
+                  <span className="text-sm">{t(item.name)}</span>
                 </Link>
               );
             })}
           </nav>
+
+          {/* Language Switcher */}
+          <div className="p-4 border-t border-white/10 flex justify-center">
+            <button
+              onClick={() => setLanguage(language === 'en' ? 'id' : 'en')}
+              className="text-xs bg-neutral-800 hover:bg-neutral-700 px-4 py-2 rounded text-white flex gap-2 items-center w-full justify-center"
+            >
+              <Globe size={14} />
+              {language === 'en' ? 'Switch to ID' : 'Switch to EN'}
+            </button>
+          </div>
         </div>
       </aside>
 

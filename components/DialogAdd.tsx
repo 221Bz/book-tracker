@@ -2,6 +2,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface AddDialogProps {
   open: boolean;
@@ -22,12 +23,13 @@ export default function AddDialog({
   onSave,
   onCancel
 }: AddDialogProps) {
+  const { t } = useLanguage();
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          {description && <DialogDescription>{description}</DialogDescription>}
+          <DialogTitle>{t(title)}</DialogTitle>
+          {description && <DialogDescription>{t(description)}</DialogDescription>}
         </DialogHeader>
 
         <div className="space-y-4">
@@ -42,9 +44,9 @@ export default function AddDialog({
               onCancel?.();
             }}
           >
-            Batal
+            {t("Cancel")}
           </Button>
-          <Button onClick={onSave}>Simpan</Button>
+          <Button onClick={onSave}>{t("Save")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
