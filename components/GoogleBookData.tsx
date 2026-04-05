@@ -43,39 +43,28 @@ export function useGoogleBookData(search: string) {
       setError(null)
 
       try {
-        const query = search.trim() === "popular books" ? "popular" : search;
-        const res = await fetch(
-          `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=15`
-        )
-
-        if (!res.ok) {
-          throw new Error("Gagal mengambil data dari OpenLibrary")
+        const apiKey = process.env.NEXT_PUBLIC_GOOGLE_BOOKS_API_KEY;
+        const url = new URL('https://www.googleapis.com/books/v1/volumes');
+        url.searchParams.set('q', search);
+        if (apiKey) {
+          url.searchParams.set('key', apiKey);
         }
 
-        const data: { docs: OpenLibraryDoc[] } = await res.json();
+        const res = await fetch(url.toString());
 
-        // Coba transform data agar sesuai dengan interface GoogleBook lama
-        // Supaya kita tidak perlu mengubah BookCard
-        const mappedBooks: GoogleBook[] = data.docs.map(doc => ({
-          id: doc.key.replace('/works/', ''),
-          volumeInfo: {
-            title: doc.title,
-            authors: doc.author_name,
-            description: "No Description available from OpenLibrary Search.",
-            imageLinks: doc.cover_i ? { thumbnail: `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg` } : undefined,
-            publishedDate: doc.first_publish_year?.toString(),
-            categories: doc.subject?.slice(0, 3), // Ambil maksimal 3 kategori
-            pageCount: doc.number_of_pages_median
-          }
-        }));
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          throw new Error(errorData?.error?.message || `Error fetching books (Status: ${res.status})`);
+        }
 
-        setBooks(mappedBooks ?? [])
+        const data: { items?: GoogleBook[] } = await res.json();
+        setBooks(data.items ?? []);
       } catch (err: unknown) {
-        console.error(err)
-        setError(err instanceof Error ? err.message : "Gagal mengambil data buku")
-        setBooks([])
+        console.error(err);
+        setError(err instanceof Error ? err.message : "Gagal mengambil data buku");
+        setBooks([]);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }, 500)
 
