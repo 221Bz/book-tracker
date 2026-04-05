@@ -297,28 +297,28 @@ export default function BookCard({ book, mode = "explore", hideDates = false }: 
           )}
 
           {/* Dates (Only for UserBooks) */}
-          {!hideDates && (localBook.started_at || localBook.finished_at) && (
+          {!hideDates && isUserBook && (
             <div className="flex flex-col gap-1 text-[10px] text-neutral-400 bg-neutral-800/50 p-2 rounded-md mt-2 mb-1">
-              {localBook.started_at && (
-                <div className="flex justify-between">
-                  <span>Started:</span>
-                  <span className="font-medium text-white">
-                    {new Date(localBook.started_at).toLocaleDateString("id-ID", {
+              <div className="flex justify-between">
+                <span>Started:</span>
+                <span className="font-medium text-white">
+                  {localBook.started_at
+                    ? new Date(localBook.started_at).toLocaleDateString("id-ID", {
                       day: 'numeric', month: 'short', year: 'numeric'
-                    })}
-                  </span>
-                </div>
-              )}
-              {localBook.finished_at && (
-                <div className="flex justify-between">
-                  <span>Finished:</span>
-                  <span className="font-medium text-green-400">
-                    {new Date(localBook.finished_at).toLocaleDateString("id-ID", {
+                    })
+                    : "-"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Finished:</span>
+                <span className="font-medium text-green-400">
+                  {localBook.finished_at
+                    ? new Date(localBook.finished_at).toLocaleDateString("id-ID", {
                       day: 'numeric', month: 'short', year: 'numeric'
-                    })}
-                  </span>
-                </div>
-              )}
+                    })
+                    : "-"}
+                </span>
+              </div>
             </div>
           )}
 
